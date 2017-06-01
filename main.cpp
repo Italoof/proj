@@ -32,15 +32,10 @@ void connect(const char *db_file)
 static int callback(void *NotUsed, int argc, char **argv, char **azColName)
 {
     int i;
-    for(i=0; i<argc; i++)
-    {
-        cout<<"\t"<<azColName[i]<<" \t";
-    }
-    cout<<endl;
 
     for(i=0; i<argc; i++)
     {
-        cout<<"\t"<<argv[i]<<" ";
+        cout<<azColName[i]<<" "<<argv[i]<<endl;
     }
     cout<<endl;
 
@@ -101,32 +96,41 @@ void senhaAcesso()
 
 }
 
-void inserirAluno(int idAluno)
+void inserirAluno()
 {
-    idAluno++;
-
     char *sql;
-    char idt[3];
+    int IDTURMA;
+    int IDADE,MATRICULA;
+    char NOME[50],EMAIL[100];
+    char prt1[200],frase2[200];
 
-    sprintf(idt,"%d",idAluno);
+    cout<<"Número da turma do novo aluno:";
+    cin>>IDTURMA;
 
-    char IDTURMA[2]="1",NOME[30]="lucas",IDADE[3]="20",MATRICULA[11]="2016014950";
-    char EMAIL[30]="Lucas",NOTA1[5]="10",NOTA2[5]="10",NOTA3[5]="10",MEDIA[5]="10";
-    char prt1[200]="INSERT INTO ALUNOS(ID,IDTURMA,NOME,IDADE,MATRICULA,EMAIL)\nVALUES (";
-    strcat(prt1,idt);
-    strcat(prt1,",");
-    strcat(prt1,IDTURMA);
-    strcat(prt1,",'");
-    strcat(prt1,NOME);
-    strcat(prt1,"',");
-    strcat(prt1,IDADE);
-    strcat(prt1,",");
-    strcat(prt1,MATRICULA);
-    strcat(prt1,",'");
-    strcat(prt1,EMAIL);
-    sql = (char *)strcat(prt1,"',0,0,0,0);");
+    cout<<"Nome do aluno:";
+    cin.ignore();
+    cin.getline(NOME, 50);
 
+    cout<<"Idade do aluno:";
+    cin>>IDADE;
+
+    cout<<"Matricula do aluno:";
+    cin>>MATRICULA;
+
+    cout<<"Email do aluno:";
+    cin.ignore();
+    cin.getline(EMAIL,100);
+
+    sprintf(prt1,"INSERT INTO ALUNOS(IDTURMA,NOME,IDADE,MATRICULA,EMAIL,NOTA1,NOTA2,NOTA3,MEDIA)\nVALUES (%d,'%s',%d,%d,'%s',0,0,0,0);",IDTURMA,NOME,IDADE,MATRICULA,EMAIL);
+
+    sql = (char *)prt1;
     exec(sql);
+
+    sprintf(frase2, "UPDATE TURMAS set QUANTALUNOS = (QUANTALUNOS+1) where NUMERO=%d;",IDTURMA );
+    sql = (char *) frase2;
+    exec(sql);
+
+
 }
 
 /*void deletarTurma(char ID[])
@@ -177,23 +181,62 @@ void inserirAluno(int idAluno)
     exec(sql);
 }
 */
-/*void inserirTurma(char DISCIPLINA[], char QUANTALUNOS[],int idTurma)
+void inserirTurma()
 {
-    idTurma++;
-    char idt[3];
+    char *sql;
+    char frase[200];
+    char DISCIPLINA[100];
+    int NUMERO;
 
-    char prt1[200]="INSERT INTO TURMAS(ID,DISCIPLINA,QUANTALUNOS)\nVALUES(";
-    sprintf(idt,"%d",idTurma);
-    strcat(prt1,idt);
-    strcat(prt1,",'");
-    strcat(prt1,DISCIPLINA);
-    strcat(prt1,"',");
-    strcat(prt1,QUANTALUNOS);
-    sql = (char *)strcat(prt1,");");
+    system("cls");
+
+    cout<<"Digite o nome da disciplina da nova turma:";
+    cin.ignore();
+    cin.getline(DISCIPLINA,100);
+
+    cout<<"Digite o numero da turma:";
+    cin>>NUMERO;
+
+    sprintf(frase,"INSERT INTO TURMAS(DISCIPLINA,NUMERO,QUANTALUNOS)\nVALUES('%s',%d,0);",DISCIPLINA,NUMERO);
+
+    sql = (char *)frase;
     exec(sql);
 }
-*/
 
+void telaAlunoPessoal(int IDALUNO)
+{
+
+    char *sql;
+    char idA[4];
+
+    sprintf(idA,"%d",IDALUNO);
+
+    system("cls");
+
+    char frase[500]="SELECT nome,matricula,idade,email,nota1,nota2,nota3,media from ALUNOS where ID=";
+    sql= (char*)strcat(frase, idA);
+    exec(sql);
+
+}
+
+void telaAlunoGeral(int IDTURMA)
+{
+
+    char *sql;
+    char str[150];
+    int ID;
+
+    system("cls");
+
+    sprintf(str, "SELECT nome,id,matricula from ALUNOS where IDTURMA=%d",IDTURMA );
+    sql = (char *)str;
+    exec(sql);
+
+    cout<<"\nDigite o ID do aluno que deseja vizualizar:";
+    cin>>ID;
+
+    telaAlunoPessoal(ID);
+}
 //Menu
 void telaTurmas()
 {
@@ -208,18 +251,13 @@ void telaTurmas()
     cout<<"\nDigite o ID da turma que deseja acessar:";
     cin>>ID;
 
-    system("cls");
-
-    sql = (char *) "SELECT nome,matricula from ALUNOS";
-    exec(sql);
-
+    telaAlunoGeral(ID);
 }
-
 //Menu
 void telaGerenciamento()
 {
 
-    int opcaoGerenciamento;
+    char opcaoGerenciamento;
 
     system("cls");
 
@@ -233,7 +271,20 @@ void telaGerenciamento()
 
     cin>>opcaoGerenciamento;
 
+    switch(opcaoGerenciamento){
 
+        case '1':
+
+            inserirTurma();
+
+        break;
+
+        case '3':
+
+            inserirAluno();
+
+        break;
+    }
 }
 
 //Menu
@@ -350,8 +401,8 @@ int main()
 
     //exec(sql);
 
-    char IDTURMA[2]="1",NOME[30]="lucas",IDADE[3]="20",MATRICULA[11]="2016014950";
-    char EMAIL[30]="Lucas",NOTA1[5]="10",NOTA2[5]="10",NOTA3[5]="10",MEDIA[5]="10";
+    char IDTURMA[2]="2",NOME[30]="Jose",IDADE[3]="18",MATRICULA[11]="2016011170";
+    char EMAIL[30]="italo.of@email.com";
     char prt1[200]="INSERT INTO ALUNOS(IDTURMA,NOME,IDADE,MATRICULA,EMAIL,NOTA1,NOTA2,NOTA3,MEDIA)\nVALUES (";
     strcat(prt1,IDTURMA);
     strcat(prt1,",'");
@@ -364,7 +415,7 @@ int main()
     strcat(prt1,EMAIL);
     sql = (char *)strcat(prt1,"',0,0,0,0);");
 
-    exec(sql);
+ //   exec(sql);
 
     menuEntrada();
 
