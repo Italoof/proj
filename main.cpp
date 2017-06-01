@@ -107,6 +107,8 @@ void inserirAluno()
     cout<<"Número da turma do novo aluno:";
     cin>>IDTURMA;
 
+    system("cls");
+
     cout<<"Nome do aluno:";
     cin.ignore();
     cin.getline(NOME, 50);
@@ -133,54 +135,102 @@ void inserirAluno()
 
 }
 
-/*void deletarTurma(char ID[])
+void deletarTurma()
 {
-    char frase[150]="DELETE from TURMAS where ID=";
-    strcat(frase,ID);
+    char *sql;
+    char frase[150];
+    int NUMERO;
 
-    char frase[150]="DELETE from ALUNOS where IDTURMA=";
-    strcat(frase,ID);
+    system("cls");
 
-    sql=(char *)strcat(frase,";");
+    sql = (char *) "SELECT disciplina, numero, id from TURMAS";
+    exec(sql);
+
+    cout<<"Digite o numero da turma que deseja excluir:";
+    cin>>NUMERO;
+
+    sprintf(frase,"DELETE from TURMAS where NUMERO=%d;",NUMERO);
+    sql=(char *)frase;
+    exec(sql);
+
+    sprintf(frase,"DELETE from ALUNOS where IDTURMA=%d;",NUMERO);
+    sql=(char *)frase;
+    exec(sql);
+
+}
+
+void deletarAluno()
+{
+    int numero, id;
+    char *sql;
+    char frase[50],str[100];
+
+    system("cls");
+
+    sql = (char *) "SELECT disciplina, numero, id from TURMAS";
+    exec(sql);
+
+    cout<<"Digite o numero da turma da qual deseja remover o aluno:";
+    cin>>numero;
+
+    system("cls");
+
+    sprintf(str, "SELECT nome,id,matricula from ALUNOS where IDTURMA=%d",numero);
+    sql = (char *)str;
+    exec(sql);
+
+    cout<<"\nDigite o ID do aluno que deseja remover:";
+    cin>>id;
+
+    sprintf(frase,"DELETE from ALUNOS where ID=%d;",id);
+    sql=(char *)frase;
+    exec(sql);
+
+    sprintf(frase, "UPDATE TURMAS set QUANTALUNOS = (QUANTALUNOS-1) where NUMERO=%d;",numero);
+    sql = (char *) frase;
+    exec(sql);
+
+}
+
+void atualizarNotas()
+{
+    char *sql;
+    char frase[50],str[100];
+    int numero,idaluno, unidade;
+    float nota;
+
+    system("cls");
+
+    sql = (char *) "SELECT disciplina, numero, id from TURMAS";
+    exec(sql);
+
+    cout<<"Digite o numero da turma que deseja acessar:";
+    cin>>numero;
+
+    system("cls");
+
+    sprintf(str, "SELECT nome,id,matricula,nota1,nota2,nota3,media from ALUNOS where IDTURMA=%d",numero);
+    sql = (char *)str;
+    exec(sql);
+
+    cout<<"Digite o ID do aluno que deseja alterar as notas:";
+    cin>>idaluno;
+
+    cout<<"Digite a unidade (1,2 ou 3) da qual deseja alterar a nota:";
+    cin>>unidade;
+
+    cout<<"Digite a nova nota:";
+    cin>>nota;
+
+    sprintf(frase,"UPDATE ALUNOS set NOTA%d=%f  where ID=%d; \n SELECT * from ALUNOS",unidade,nota,idaluno);
+    sql=(char*)frase;
+    exec(sql);
+
+    sprintf(frase,"UPDATE ALUNOS set MEDIA=((NOTA1+NOTA2+NOTA3)/3); \n SELECT * from ALUNOS",unidade,nota,idaluno);
+    sql=(char*)frase;
     exec(sql);
 }
-*/
 
-/*void deletarAluno(char ID[])
-{
-    char frase[150]="DELETE from ALUNOS where ID=";
-    strcat(frase,ID);
-    sql=(char *)strcat(frase,";");
-    exec(sql);
-}
-*/
-
-/*void AtualizarAluno(char nota[], char valornota[], char Id[])
-{
-
-    char frase[30]="UPDATE ALUNOS set NOTA" ;
-    strcat(frase,nota);
-    strcat(frase,"= ");
-    strcat(frase,valornota);
-    char frase2[10]=" where ID=";
-    char frase3[20]="; \n SELECT * from ALUNOS";
-    strcat(frase,frase2);
-    sql=(char*)strcat(frase,frase3);
-    exec(sql);
-}*/
-
-/*void AtualizarTurma(char Id[], char QuantidadeAluno[])
-{
-    char frase[31]="UPDATE TURMAS set QUANTALUNOS=";
-    char frase2[11]=" where ID=";
-    strcat(frase,QuantidadeAluno);
-    strcat(frase,frase2);
-    strcat(frase,Id);
-    char frase3[30]="; \n SELECT * from TURMAS";
-    sql=(char*) strcat(frase,frase3);
-    exec(sql);
-}
-*/
 void inserirTurma()
 {
     char *sql;
@@ -237,6 +287,7 @@ void telaAlunoGeral(int IDTURMA)
 
     telaAlunoPessoal(ID);
 }
+
 //Menu
 void telaTurmas()
 {
@@ -253,6 +304,7 @@ void telaTurmas()
 
     telaAlunoGeral(ID);
 }
+
 //Menu
 void telaGerenciamento()
 {
@@ -279,9 +331,27 @@ void telaGerenciamento()
 
         break;
 
+        case '2':
+
+            deletarTurma();
+
+        break;
+
         case '3':
 
             inserirAluno();
+
+        break;
+
+        case '4':
+
+            deletarAluno();
+
+        break;
+
+        case '5':
+
+            atualizarNotas();
 
         break;
     }
