@@ -72,6 +72,37 @@ bool stringIgual(char s1[], char s2[])
     return true;
 }
 
+void criarTabelaBanco()
+{
+    char *sql;
+    sql = (char *)"CREATE TABLE IF NOT EXISTS TURMAS("\
+          "ID INTEGER PRIMARY KEY     AUTOINCREMENT,"\
+          "DISCIPLINA           TEXT    NOT NULL,"\
+          "NUMERO               INT     NOT NULL,"\
+          "QUANTALUNOS            INT     NOT NULL);";
+
+    exec(sql);
+
+    sql = (char *)"CREATE TABLE IF NOT EXISTS ALUNOS("  \
+          "ID INTEGER PRIMARY KEY     AUTOINCREMENT," \
+          "IDTURMA        INT     NOT NULL,"\
+          "NOME           TEXT    NOT NULL," \
+          "IDADE          INT     NOT NULL," \
+          "MATRICULA      INT     NOT NULL," \
+          "EMAIL          CHAR(100)," \
+          "NOTA1          REAL     NOT NULL,"\
+          "NOTA2          REAL     NOT NULL,"\
+          "NOTA3          REAL     NOT NULL,"\
+          "MEDIA          REAL     NOT NULL);";
+    exec(sql);
+
+}
+
+void menuEntrada();
+void menuPrincipal();
+void telaGerenciamento();
+void telaTurmas();
+
 // Função com senha para acessar o programa
 void senhaAcesso()
 {
@@ -99,13 +130,18 @@ void senhaAcesso()
 void inserirAluno()
 {
     char *sql;
-    int IDTURMA;
-    int IDADE,MATRICULA;
+    int IDTURMA,IDADE,MATRICULA;
+    char voltar;
     char NOME[50],EMAIL[100];
     char prt1[200],frase2[200];
 
-    cout<<"Número da turma do novo aluno:";
+    system("cls");
+
+    cout<<"Número da turma do novo aluno(Digite 0 para voltar):";
     cin>>IDTURMA;
+
+    if(IDTURMA==0)
+        telaGerenciamento();
 
     system("cls");
 
@@ -132,7 +168,25 @@ void inserirAluno()
     sql = (char *) frase2;
     exec(sql);
 
+backInseridoSucesso:
+    system("cls");
 
+    cout<<"Aluno inserido com sucesso."\
+        "\n1-Inserir outro aluno"\
+        "\n2-Voltar ao menu de gerenciamento das turmas";
+    cin>>voltar;
+
+    switch(voltar)
+    {
+    case '1':
+        inserirAluno();
+        break;
+    case '2':
+        telaGerenciamento();
+        break;
+    default:
+        goto backInseridoSucesso;
+    }
 }
 
 void deletarTurma()
@@ -146,8 +200,11 @@ void deletarTurma()
     sql = (char *) "SELECT disciplina, numero, id from TURMAS";
     exec(sql);
 
-    cout<<"Digite o numero da turma que deseja excluir:";
+    cout<<"Digite o numero da turma que deseja excluir (Digite 0 para voltar):";
     cin>>NUMERO;
+
+    if(NUMERO==0)
+        telaGerenciamento();
 
     sprintf(frase,"DELETE from TURMAS where NUMERO=%d;",NUMERO);
     sql=(char *)frase;
@@ -162,6 +219,7 @@ void deletarTurma()
 void deletarAluno()
 {
     int numero, id;
+    char voltar;
     char *sql;
     char frase[50],str[100];
 
@@ -170,8 +228,11 @@ void deletarAluno()
     sql = (char *) "SELECT disciplina, numero, id from TURMAS";
     exec(sql);
 
-    cout<<"Digite o numero da turma da qual deseja remover o aluno:";
+    cout<<"Digite o numero da turma da qual deseja remover o aluno (Digite 0 para voltar):";
     cin>>numero;
+
+    if(numero==0)
+        telaGerenciamento();
 
     system("cls");
 
@@ -190,11 +251,31 @@ void deletarAluno()
     sql = (char *) frase;
     exec(sql);
 
+backRemovidoSucesso:
+    system("cls");
+
+    cout<<"Aluno removido com sucesso."\
+        "\n1-Remover outro aluno"\
+        "\n2-Voltar ao menu de gerenciamento das turmas";
+    cin>>voltar;
+
+    switch(voltar)
+    {
+    case '1':
+        deletarAluno();
+        break;
+    case '2':
+        telaGerenciamento();
+        break;
+    default:
+        goto backRemovidoSucesso;
+    }
 }
 
 void atualizarNotas()
 {
     char *sql;
+    char voltar;
     char frase[50],str[100];
     int numero,idaluno, unidade;
     float nota;
@@ -204,8 +285,11 @@ void atualizarNotas()
     sql = (char *) "SELECT disciplina, numero, id from TURMAS";
     exec(sql);
 
-    cout<<"Digite o numero da turma que deseja acessar:";
+    cout<<"Digite o numero da turma que deseja acessar (Digite 0 para voltar):";
     cin>>numero;
+
+    if(numero==0)
+        telaGerenciamento();
 
     system("cls");
 
@@ -229,6 +313,26 @@ void atualizarNotas()
     sprintf(frase,"UPDATE ALUNOS set MEDIA=((NOTA1+NOTA2+NOTA3)/3); \n SELECT * from ALUNOS",unidade,nota,idaluno);
     sql=(char*)frase;
     exec(sql);
+
+backNotaSucesso:
+    system("cls");
+
+    cout<<"Nota alterada com sucesso."\
+        "\n1-Alterar outra nota"\
+        "\n2-Voltar ao menu de gerenciamento das turmas";
+    cin>>voltar;
+
+    switch(voltar)
+    {
+    case '1':
+        atualizarNotas();
+        break;
+    case '2':
+        telaGerenciamento();
+        break;
+    default:
+        goto backNotaSucesso;
+    }
 }
 
 void inserirTurma()
@@ -238,14 +342,26 @@ void inserirTurma()
     char DISCIPLINA[100];
     int NUMERO;
 
+backDisciplina:
+
     system("cls");
 
-    cout<<"Digite o nome da disciplina da nova turma:";
+    cout<<"Digite o nome da disciplina da nova turma (Digite 0 para voltar):";
     cin.ignore();
     cin.getline(DISCIPLINA,100);
 
-    cout<<"Digite o numero da turma:";
+    if(DISCIPLINA[0]=='0' && DISCIPLINA[1]=='\0')
+    {
+        telaGerenciamento();
+    }
+
+    cout<<"Digite o numero da turma (Digite 0 para voltar):";
     cin>>NUMERO;
+
+    if(NUMERO==0)
+    {
+        goto backDisciplina;
+    }
 
     sprintf(frase,"INSERT INTO TURMAS(DISCIPLINA,NUMERO,QUANTALUNOS)\nVALUES('%s',%d,0);",DISCIPLINA,NUMERO);
 
@@ -257,6 +373,7 @@ void telaAlunoPessoal(int IDALUNO)
 {
 
     char *sql;
+    char voltar;
     char idA[4];
 
     sprintf(idA,"%d",IDALUNO);
@@ -266,6 +383,14 @@ void telaAlunoPessoal(int IDALUNO)
     char frase[500]="SELECT nome,matricula,idade,email,nota1,nota2,nota3,media from ALUNOS where ID=";
     sql= (char*)strcat(frase, idA);
     exec(sql);
+
+    cout<<"\nDigite 0 para voltar pra tela de turmas:";
+    cin>>voltar;
+
+    if(voltar=='0')
+        telaTurmas();
+    else
+        telaAlunoPessoal(IDALUNO);
 
 }
 
@@ -282,10 +407,13 @@ void telaAlunoGeral(int IDTURMA)
     sql = (char *)str;
     exec(sql);
 
-    cout<<"\nDigite o ID do aluno que deseja vizualizar:";
+    cout<<"\nDigite o ID do aluno que deseja vizualizar (Digite 0 para voltar):";
     cin>>ID;
 
-    telaAlunoPessoal(ID);
+    if(ID==0)
+        telaTurmas();
+    else
+        telaAlunoPessoal(ID);
 }
 
 //Menu
@@ -299,10 +427,13 @@ void telaTurmas()
     sql = (char *) "SELECT disciplina, numero, id, quantalunos from TURMAS";
     exec(sql);
 
-    cout<<"\nDigite o ID da turma que deseja acessar:";
+    cout<<"\nDigite o ID da turma que deseja acessar (Digite 0 para voltar)";
     cin>>ID;
 
-    telaAlunoGeral(ID);
+    if(ID==0)
+        menuPrincipal();
+    else
+        telaAlunoGeral(ID);
 }
 
 //Menu
@@ -323,35 +454,47 @@ void telaGerenciamento()
 
     cin>>opcaoGerenciamento;
 
-    switch(opcaoGerenciamento){
+    switch(opcaoGerenciamento)
+    {
 
-        case '1':
+    case '1':
 
-            inserirTurma();
-
-        break;
-
-        case '2':
-
-            deletarTurma();
+        inserirTurma();
 
         break;
 
-        case '3':
+    case '2':
 
-            inserirAluno();
-
-        break;
-
-        case '4':
-
-            deletarAluno();
+        deletarTurma();
 
         break;
 
-        case '5':
+    case '3':
 
-            atualizarNotas();
+        inserirAluno();
+
+        break;
+
+    case '4':
+
+        deletarAluno();
+
+        break;
+
+    case '5':
+
+        atualizarNotas();
+
+        break;
+
+    case '6':
+
+        menuPrincipal();
+
+        break;
+    default:
+
+        telaGerenciamento();
 
         break;
     }
@@ -360,7 +503,7 @@ void telaGerenciamento()
 //Menu
 void menuPrincipal()
 {
-
+    system("cls");
     char opcaoPrincipal;
 
 backPrincipal:
@@ -392,12 +535,12 @@ backPrincipal:
         break;
 
     case '4':
-
+        menuEntrada();
         break;
 
     default:
+        menuPrincipal();
 
-        goto backPrincipal;
     }
 
 
@@ -406,10 +549,11 @@ backPrincipal:
 //Menu
 void menuEntrada()
 {
+    system("cls");
 
     char opcaoEntrada;
 
-backEntrada:
+
 
     cout<<"           SEGT         "<<endl
         <<"                        "<<endl
@@ -428,11 +572,12 @@ backEntrada:
         menuPrincipal();
 
     case '2':
+
         break;
 
     default:
-        system("cls");
-        goto backEntrada;
+        menuEntrada();
+
     }
 }
 
@@ -440,52 +585,7 @@ int main()
 {
     connect("test.db");
 
-    char *sql;
-
-    sql = (char *)"CREATE TABLE IF NOT EXISTS TURMAS("\
-          "ID INTEGER PRIMARY KEY     AUTOINCREMENT,"\
-          "DISCIPLINA           TEXT    NOT NULL,"\
-          "NUMERO               INT     NOT NULL,"\
-          "QUANTALUNOS            INT     NOT NULL);";
-
-    exec(sql);
-
-    sql = (char *)"CREATE TABLE IF NOT EXISTS ALUNOS("  \
-          "ID INTEGER PRIMARY KEY     AUTOINCREMENT," \
-          "IDTURMA        INT     NOT NULL,"\
-          "NOME           TEXT    NOT NULL," \
-          "IDADE          INT     NOT NULL," \
-          "MATRICULA      INT     NOT NULL," \
-          "EMAIL          CHAR(100)," \
-          "NOTA1          REAL     NOT NULL,"\
-          "NOTA2          REAL     NOT NULL,"\
-          "NOTA3          REAL     NOT NULL,"\
-          "MEDIA          REAL     NOT NULL);";
-    exec(sql);
-
-    //sql = (char *) "INSERT INTO TURMAS (DISCIPLINA, NUMERO, QUANTALUNOS) "  \
-          "VALUES ('Linguagem de Programacao',1,100); ";
-
-    //sql = (char *) "DELETE from TURMAS where ID=3; ";
-
-
-    //exec(sql);
-
-    char IDTURMA[2]="2",NOME[30]="Jose",IDADE[3]="18",MATRICULA[11]="2016011170";
-    char EMAIL[30]="italo.of@email.com";
-    char prt1[200]="INSERT INTO ALUNOS(IDTURMA,NOME,IDADE,MATRICULA,EMAIL,NOTA1,NOTA2,NOTA3,MEDIA)\nVALUES (";
-    strcat(prt1,IDTURMA);
-    strcat(prt1,",'");
-    strcat(prt1,NOME);
-    strcat(prt1,"',");
-    strcat(prt1,IDADE);
-    strcat(prt1,",");
-    strcat(prt1,MATRICULA);
-    strcat(prt1,",'");
-    strcat(prt1,EMAIL);
-    sql = (char *)strcat(prt1,"',0,0,0,0);");
-
- //   exec(sql);
+    criarTabelaBanco();
 
     menuEntrada();
 
